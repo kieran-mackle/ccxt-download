@@ -11,7 +11,7 @@ multiple periods of time and for multiple symbols, things get messy,
 fast. Not to mention the problems that pop up when I want to load that
 data later...
 
-With this package, the above issues are no longer a worry.
+With this package, the above issues are no longer a worry. For me anyway.
 
 
 ## Usage
@@ -35,6 +35,12 @@ public.download(
 Data will be downloaded to file between the dates specified. If the 
 data already exists, it will not be re-downloaded.
 
+## Installation
+
+```
+pip install ccxt-download
+```
+
 ## Notes
 - Current implementation is most suited for minutely aggregated data. If
 longer aggregation windows were used, the 1-day file partitioning will
@@ -42,17 +48,50 @@ need to be revised. An option is to partition dynamically, for example
 daily for 1 minutely data, weekly for 30 minutely, and so on.
 
 ### To Do
-- [ ] Add license to repo
 - [ ] Progress verbosity
 - [ ] Docstrings
-- [ ] Expand contributing section
-- [ ] Test commitizen version bumping and changelog setup
 - [ ] Support trade data downloads
+- [ ] Test commitizen version bumping and changelog setup
+- [ ] Support private API downloads
+- [x] Add license to repo
+- [x] Expand contributing section
 
 
 ## Contributing
 
+Contributions to `ccxt-download` are welcomed. However, please try follow the
+guidelines below.
+
+### Seek early feedback
+Please [open an issue](https://github.com/kieran-mackle/ccxt-download/issues)
+before a [pull request](https://github.com/kieran-mackle/ccxt-download/pulls)
+to discuss any changes you wish to make.
+
+### Code style
+The code in this project is formatted using [Black](https://github.com/psf/black). 
+The Black package is included in the `dev` dependencies of `ccxt-download`.
+As mentioned below, please run `black .` before opening a pull request.
+
+
+### Setting up for Development
+Fork this repository, then install from source using an editable installation. 
+Additionally, install with the optional `dev` dependencies.
+
 ```
 pip install -e .[dev]
+```
+
+If you want to make sure you have formatted the code before commiting, install
+the pre-commit hook using the command below. This will check that the code
+is formatted whenever you try to make a commit.
+
+```
 pre-commit install
+```
+
+If you get a message saying the code isn't formatted correctly, simply run the 
+command below and try again.
+
+```
+black .
 ```
