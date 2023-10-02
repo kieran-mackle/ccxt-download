@@ -12,7 +12,6 @@ from ccxt_download import DEFAULT_DOWNLOAD_DIR, CANDLES
 
 
 logger = logging.getLogger(__name__)
-rate_limit = AsyncLimiter(max_rate=100, time_period=30)
 
 
 def download(
@@ -22,7 +21,12 @@ def download(
     start_date: Union[datetime, str],
     end_date: Union[datetime, str],
     download_dir: str = DEFAULT_DOWNLOAD_DIR,
+    rate_limiter: Optional[AsyncLimiter] = None,
 ):
+    # Create rate limiter
+    if rate_limiter is None:
+        rate_limiter = AsyncLimiter(max_rate=100, time_period=30)
+
     if isinstance(start_date, str):
         start_date = datetime.strptime(start_date, "%Y-%m-%d")
 
@@ -40,6 +44,7 @@ def download(
             symbols=symbols,
             start_dt=start_date,
             end_dt=end_date,
+            rate_limiter=rate_limiter,
             download_dir=download_dir,
         )
     )
@@ -51,6 +56,7 @@ async def download_async(
     symbols: list[str],
     start_dt: datetime,
     end_dt: datetime,
+    rate_limiter: AsyncLimiter,
     download_dir: str = DEFAULT_DOWNLOAD_DIR,
 ):
     # Create exchange instance
@@ -77,6 +83,7 @@ async def download_async(
                     exchange=exchange,
                     symbol=symbol,
                     start_dt=current_dt,
+                    rate_limiter=rate_limiter,
                     download_dir=download_dir,
                 )
                 tasks.append(coro)
@@ -94,6 +101,7 @@ async def candles(
     exchange: ccxt.Exchange,
     symbol: str,
     start_dt: datetime,
+    rate_limiter: AsyncLimiter,
     timeframe: Optional[str] = "1m",
     download_dir: str = DEFAULT_DOWNLOAD_DIR,
 ) -> pd.DataFrame:
@@ -124,7 +132,7 @@ async def candles(
     current_ts = start_ts
     while current_ts < end_ts:
         limit = int((end_ts - current_ts) / timeframe_ms) + 1
-        async with rate_limit:
+        async with rate_limiter:
             data = await exchange.fetch_ohlcv(
                 symbol=symbol,
                 timeframe=timeframe,
