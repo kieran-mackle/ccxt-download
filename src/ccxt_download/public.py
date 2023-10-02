@@ -22,6 +22,7 @@ def download(
     end_date: Union[datetime, str],
     download_dir: str = DEFAULT_DOWNLOAD_DIR,
     rate_limiter: Optional[AsyncLimiter] = None,
+    verbose: Optional[bool] = True,
 ):
     """Download data.
 
@@ -54,6 +55,9 @@ def download(
     rate_limiter : asiolimiter.AsyncLimiter, optional
         An asyncio rate limiter object. The default is
         AsyncLimiter(max_rate=100, time_period=30).
+
+    verbose : bool, optional
+        Be verbose. The default is True.
     """
     # Create rate limiter
     if rate_limiter is None:
@@ -90,6 +94,7 @@ async def download_async(
     end_dt: datetime,
     rate_limiter: AsyncLimiter,
     download_dir: str = DEFAULT_DOWNLOAD_DIR,
+    verbose: Optional[bool] = True,
 ):
     """Async data download function.
 
@@ -121,6 +126,9 @@ async def download_async(
     download_dir : str, optional
         The path to the download directory. The default is
         './ccxt_data'.
+
+    verbose : bool, optional
+        Be verbose. The default is True.
     """
     # Create exchange instance
     if isinstance(exchange, str):
@@ -148,6 +156,7 @@ async def download_async(
                     start_dt=current_dt,
                     rate_limiter=rate_limiter,
                     download_dir=download_dir,
+                    verbose=verbose,
                 )
                 tasks.append(coro)
 
@@ -167,6 +176,7 @@ async def candles(
     rate_limiter: AsyncLimiter,
     timeframe: Optional[str] = "1m",
     download_dir: str = DEFAULT_DOWNLOAD_DIR,
+    verbose: Optional[bool] = True,
 ) -> pd.DataFrame:
     """Download candle (OHLCV) data.
 
@@ -197,6 +207,9 @@ async def candles(
     download_dir : str, optional
         The path to the download directory. The default is
         './ccxt_data'.
+
+    verbose : bool, optional
+        Be verbose. The default is True.
     """
     filename = filename_builder(
         exchange=exchange.name.lower(),
@@ -253,3 +266,8 @@ async def candles(
 
     # Save
     df.to_csv(path_or_buf=filename, compression="gzip")
+
+    if verbose:
+        print(
+            f"Finished downloading candles for {symbol} on {exchange} on {start_dt.strftime('%Y-%m-%d')}."
+        )
