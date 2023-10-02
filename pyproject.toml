@@ -32,3 +32,12 @@ dev = [
 [project.urls]
 "Homepage" = "https://github.com/kieran-mackle/ccxt-download"
 "Bug Tracker" = "https://github.com/kieran-mackle/ccxt-download/issues"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.0.1"
+tag_format = "v$version"
+version_files = [
+    "pyproject.toml:version",
+]
+update_changelog_on_bump = true
