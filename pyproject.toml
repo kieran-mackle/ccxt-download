@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ccxt_download"
+version = "0.0.1"
+authors = [
+  { name="Kieran Mackle", email="kemackle98@gmail.com" },
+]
+description = "A lightweight package to efficiently download cryptocurrency data using CCXT."
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  'ccxt >= 4.0.112',
+  'pandas >= 2.1.1',
+  'aiolimiter >= 1.1.0',
+]
+
+[project.optional-dependencies]
+dev = [
+  'black >= 23.9.1',
+  'commitizen >= 3.10.0',
+  'pre-commit >= 3.4.0',
+]
+
+[project.urls]
+"Homepage" = "https://github.com/kieran-mackle/ccxt-download"
+"Bug Tracker" = "https://github.com/kieran-mackle/ccxt-download/issues"
