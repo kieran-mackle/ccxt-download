@@ -106,7 +106,7 @@ async def candles(
     download_dir: str = DEFAULT_DOWNLOAD_DIR,
 ) -> pd.DataFrame:
     filename = filename_builder(
-        exchange=exchange.name,
+        exchange=exchange.name.lower(),
         start_dt=start_dt,
         download_dir=download_dir,
         symbol=symbol,
@@ -153,6 +153,10 @@ async def candles(
 
     # Set the Timestamp column as the DataFrame's index
     df.set_index("Timestamp", inplace=True)
+
+    # Add meta info
+    df["exchange"] = exchange.name.lower()
+    df["symbol"] = symbol
 
     # Save
     df.to_csv(path_or_buf=filename, compression="gzip")
