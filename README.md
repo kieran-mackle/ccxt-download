@@ -3,6 +3,17 @@
 A lightweight package to conventiently and efficiently download 
 cryptocurrency data using [CCXT](https://github.com/ccxt/ccxt).
 
+Why is this necessary? Because many times I have found myself wanting
+to quickly download a bunch of price data for some quick analysis, only
+to spend some time writing a hacky script to download the data with no
+thought about storing it for later. Expecially when I need data for 
+multiple periods of time and for multiple symbols, things get messy, 
+fast. Not to mention the problems that pop up when I want to load that
+data later...
+
+With this package, the above issues are no longer a worry.
+
+
 ## Usage
 
 ```python
@@ -32,6 +43,7 @@ daily for 1 minutely data, weekly for 30 minutely, and so on.
 
 ### To Do
 - [ ] Add license to repo
+- [ ] Progress verbosity
 - [ ] Docstrings
 - [ ] Expand contributing section
 - [ ] Test commitizen version bumping and changelog setup
