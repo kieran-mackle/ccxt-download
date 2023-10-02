@@ -34,8 +34,8 @@ def filename_builder(
 
 
 def generate_date_range(
-    start_dt: Optional[datetime] = None,
-    end_dt: Optional[datetime] = None,
+    start_dt: datetime,
+    end_dt: datetime,
 ):
     date_range = []
     current_dt = start_dt
@@ -60,43 +60,82 @@ def load_data(
     if isinstance(end_date, str):
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
 
-    # First get all files mathing the exchange and data type
-    filename = filename_builder(
-        exchange=exchange,
-        start_dt="*",
-        download_dir=download_dir,
-        symbol="*",
-        data_type=data_type,
-        **kwargs,
-    )
-    files = glob.glob(filename)
-
-    # Now filter based on symbols
-    symbol_filtered_files = []
-    formatted_symbols = [format_str(symbol) for symbol in symbols]
-    for f in files:
-        for symbol in formatted_symbols:
-            if symbol in f:
-                symbol_filtered_files.append(f)
-                continue
-
-    # Finally filter based on date range
-    if start_date is not None or end_date is not None:
-        date_range = generate_date_range(start_dt=start_date, end_dt=end_date)
-        date_filtered_files = []
-        for f in symbol_filtered_files:
-            for dt in date_range:
-                if dt in f:
-                    date_filtered_files.append(f)
+    def filter(unfiltered_files: list[str], match_strs: list[str]):
+        filtered_files = []
+        for filepath in unfiltered_files:
+            for filter_str in match_strs:
+                if filter_str in filepath:
+                    filtered_files.append(filepath)
                     continue
+        return filtered_files
+
+    # Determine filepath building method to use
+    if start_date is not None and end_date is not None:
+        # Date range requested
+        date_range = generate_date_range(start_dt=start_date, end_dt=end_date)
+        if symbols is not None:
+            # Specific symbols requested too
+            files = []
+            for date in date_range:
+                for symbol in symbols:
+                    filename = filename_builder(
+                        exchange=exchange,
+                        start_dt=date,
+                        download_dir=download_dir,
+                        symbol=symbol,
+                        data_type=data_type,
+                        **kwargs,
+                    )
+                    files.append(filename)
+
+        else:
+            # No symbol provided, filter only by date
+            filename = filename_builder(
+                exchange=exchange,
+                start_dt="*",
+                download_dir=download_dir,
+                symbol="*",
+                data_type=data_type,
+                **kwargs,
+            )
+            all_files = glob.glob(filename)
+            files = filter(unfiltered_files=all_files, match_strs=date_range)
+
     else:
-        # No dates provided, take all
-        date_filtered_files = symbol_filtered_files
+        # No date range requested
+        if symbols is not None:
+            # Specific symbols requested
+            files = []
+            for symbol in symbols:
+                filename = filename_builder(
+                    exchange=exchange,
+                    start_dt="*",
+                    download_dir=download_dir,
+                    symbol=symbol,
+                    data_type=data_type,
+                    **kwargs,
+                )
+                files += glob.glob(filename)
+
+        else:
+            # Get all symbols
+            filename = filename_builder(
+                exchange=exchange,
+                start_dt="*",
+                download_dir=download_dir,
+                symbol="*",
+                data_type=data_type,
+                **kwargs,
+            )
+            files = glob.glob(filename)
 
     # Now load all data
     df = pd.DataFrame()
-    for f in date_filtered_files:
-        df = pd.concat([df, pd.read_csv(f, index_col=0, parse_dates=True)])
+    for f in files:
+        try:
+            df = pd.concat([df, pd.read_csv(f, index_col=0, parse_dates=True)])
+        except:
+            pass
 
     # Clean
     df.sort_index(inplace=True)
