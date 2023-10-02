@@ -1,27 +1,23 @@
 # CCXT Download Utility
 
-A lightweight package to efficiently download cryptocurrency data using CCXT.
+A lightweight package to conventiently and efficiently download 
+cryptocurrency data using [CCXT](https://github.com/ccxt/ccxt).
 
 ## Usage
 
 ```python
-from datetime import datetime
-from ccxt_download import public
+from ccxt_download import public, CANDLES
 
 # Download candles
 public.download(
     exchange="bybit",
-    data_types=["candles"],
+    data_types=[CANDLES],
     symbols=[
-        "SOL/USDT:USDT",
-        "MATIC/USDT:USDT",
-        "DOT/USDT:USDT",
         "ETH/USDT:USDT",
         "BTC/USDT:USDT",
-        "TRB/USDT:USDT",
     ],
-    start_dt=datetime(2023, 9, 1),
-    end_dt=datetime(2023, 9, 30),
+    start_date="2023-09-01",
+    end_date="2023-09-05",
 )
 ```
 
