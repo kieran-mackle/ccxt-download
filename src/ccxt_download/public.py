@@ -128,7 +128,6 @@ async def candles(
         if len(data) < 1:
             break
         ohlcv_data += data
-        print(pd.to_datetime(data[-1][0], unit="ms"))
         current_ts = data[-1][0] + 1
 
     # Convert the data into a DataFrame
