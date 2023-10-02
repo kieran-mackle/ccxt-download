@@ -3,12 +3,18 @@ import glob
 import pandas as pd
 from typing import Optional, Union
 from datetime import datetime, timedelta
-from ccxt_download import DEFAULT_DOWNLOAD_DIR
+from ccxt_download import DEFAULT_DOWNLOAD_DIR, STR_CONVERSIONS
 
 
 def format_str(s: str):
-    conversions = {"/": "%2F", ":": "%3A"}
-    for c, sub in conversions.items():
+    for c, sub in STR_CONVERSIONS.items():
+        s = s.replace(c, sub)
+    return s
+
+
+def unformat_str(s: str):
+    reversed_map = {v: k for k, v in STR_CONVERSIONS.items()}
+    for c, sub in reversed_map.items():
         s = s.replace(c, sub)
     return s
 

@@ -1,1 +1,1 @@
-from .constants import CANDLES, DEFAULT_DOWNLOAD_DIR
+from .constants import CANDLES, DEFAULT_DOWNLOAD_DIR, STR_CONVERSIONS
