@@ -1,4 +1,5 @@
 import os
+import ccxt
 import glob
 import pandas as pd
 from typing import Optional, Union
@@ -148,3 +149,18 @@ def load_data(
     df.drop_duplicates(inplace=True)
 
     return df
+
+
+def get_symbols(exchange: str, market_type: Optional[str] = "swap"):
+    """Helper function to get symbols for a specific market type
+    on an exchange.
+
+    Example
+    -------
+    >>> swap_markets = get_symbols(exchange="bybit", market_type="swap")
+    """
+    exchange = getattr(ccxt, exchange)()
+    markets = exchange.load_markets()
+    return [
+        market["symbol"] for market in markets.values() if market["type"] == market_type
+    ]
