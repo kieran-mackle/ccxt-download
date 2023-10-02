@@ -21,6 +21,6 @@ public.download(
         "BTC/USDT:USDT",
         "TRB/USDT:USDT",
     ],
-    start_dt="2023-09-01",
-    end_dt="2023-09-05",
+    start_date="2023-09-01",
+    end_date="2023-09-05",
 )

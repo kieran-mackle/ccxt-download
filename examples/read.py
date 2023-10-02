@@ -7,6 +7,6 @@ df = load_data(
     data_type=CANDLES,
     data_type_id="1m",
     symbols=["ETH/USDT:USDT"],
-    start_dt="2023-09-01",
-    end_dt="2023-09-04",
+    start_date="2023-09-01",
+    end_date="2023-09-04",
 )
