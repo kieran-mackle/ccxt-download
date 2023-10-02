@@ -34,10 +34,6 @@ longer aggregation windows were used, the 1-day file partitioning will
 need to be revised. An option is to partition dynamically, for example
 daily for 1 minutely data, weekly for 30 minutely, and so on.
 
-- Where a start and end datetime object is required, only a string 
-be required. This will prevent attempting to request data finer than 
-daiLy granularity, which is not currently the intended functionality.
-
 ## Contributing
 
 ```

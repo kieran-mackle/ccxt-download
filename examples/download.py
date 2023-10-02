@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 from ccxt_download import public, CANDLES
 
 
@@ -16,12 +15,12 @@ public.download(
     data_types=[CANDLES],
     symbols=[
         "SOL/USDT:USDT",
-        # "MATIC/USDT:USDT",
-        # "DOT/USDT:USDT",
-        # "ETH/USDT:USDT",
-        # "BTC/USDT:USDT",
-        # "TRB/USDT:USDT",
+        "MATIC/USDT:USDT",
+        "DOT/USDT:USDT",
+        "ETH/USDT:USDT",
+        "BTC/USDT:USDT",
+        "TRB/USDT:USDT",
     ],
-    start_dt=datetime(2023, 9, 1),
-    end_dt=datetime(2023, 9, 2),
+    start_dt="2023-09-01",
+    end_dt="2023-09-05",
 )

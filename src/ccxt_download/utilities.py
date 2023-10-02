@@ -49,11 +49,17 @@ def load_data(
     exchange: str,
     data_type: str,
     symbols: Optional[list[str]] = None,
-    start_dt: Optional[datetime] = None,
-    end_dt: Optional[datetime] = None,
+    start_dt: Optional[Union[datetime, str]] = None,
+    end_dt: Optional[Union[datetime, str]] = None,
     download_dir: Optional[str] = DEFAULT_DOWNLOAD_DIR,
     **kwargs,
 ):
+    if isinstance(start_dt, str):
+        start_dt = datetime.strptime(start_dt, "%Y-%m-%d")
+
+    if isinstance(end_dt, str):
+        end_dt = datetime.strptime(end_dt, "%Y-%m-%d")
+
     # First get all files mathing the exchange and data type
     filename = filename_builder(
         exchange=exchange,

@@ -19,10 +19,16 @@ def download(
     exchange: Union[str, ccxt.Exchange],
     data_types: list[str],
     symbols: list[str],
-    start_dt: datetime,
-    end_dt: datetime,
+    start_dt: Union[datetime, str],
+    end_dt: Union[datetime, str],
     download_dir: str = DEFAULT_DOWNLOAD_DIR,
 ):
+    if isinstance(start_dt, str):
+        start_dt = datetime.strptime(start_dt, "%Y-%m-%d")
+
+    if isinstance(end_dt, str):
+        end_dt = datetime.strptime(end_dt, "%Y-%m-%d")
+
     # Enforce timezones
     start_dt = pytz.utc.localize(start_dt)
     end_dt = pytz.utc.localize(end_dt)
