@@ -32,6 +32,7 @@ daily for 1 minutely data, weekly for 30 minutely, and so on.
 
 ### To Do
 - [ ] Add license to repo
+- [ ] Docstrings
 - [ ] Expand contributing section
 - [ ] Test commitizen version bumping and changelog setup
 - [ ] Support trade data downloads
