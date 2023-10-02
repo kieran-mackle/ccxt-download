@@ -30,6 +30,13 @@ longer aggregation windows were used, the 1-day file partitioning will
 need to be revised. An option is to partition dynamically, for example
 daily for 1 minutely data, weekly for 30 minutely, and so on.
 
+### To Do
+- [ ] Add license to repo
+- [ ] Expand contributing section
+- [ ] Test commitizen version bumping and changelog setup
+- [ ] Support trade data downloads
+
+
 ## Contributing
 
 ```
