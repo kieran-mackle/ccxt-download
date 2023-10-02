@@ -1,5 +1,5 @@
 import logging
-from ccxt_download import public, CANDLES
+from ccxt_download import public, CANDLES, TRADES
 
 
 # Add handler to ccxt_download logger
@@ -12,10 +12,10 @@ logger.addHandler(fh)
 # Download candles
 public.download(
     exchange="bybit",
-    data_types=[CANDLES],
+    data_types=[TRADES],
     symbols=[
         "ETH/USDT:USDT",
-        "BTC/USDT:USDT",
+        # "BTC/USDT:USDT",
     ],
     start_date="2023-09-01",
     end_date="2023-09-05",

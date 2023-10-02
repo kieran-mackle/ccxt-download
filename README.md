@@ -48,9 +48,9 @@ need to be revised. An option is to partition dynamically, for example
 daily for 1 minutely data, weekly for 30 minutely, and so on.
 
 ### To Do
-- [ ] Support trade data downloads
 - [ ] Test commitizen version bumping and changelog setup
 - [ ] Support private API downloads
+- [x] Support trade data downloads
 - [x] Progress verbosity
 - [x] Docstrings
 - [x] Add license to repo

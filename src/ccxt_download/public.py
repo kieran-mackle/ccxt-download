@@ -223,11 +223,13 @@ async def candles(
     if os.path.exists(filename):
         # Data already downloaded, skip
         logger.info(
-            f"{timeframe} candles for {symbol} starting {start_dt} already exist."
+            f"{timeframe} candles for {symbol} on {exchange.name} starting {start_dt} already exist."
         )
         return
 
-    logger.debug(f"Fetching {timeframe} candles for {symbol} starting {start_dt}.")
+    logger.debug(
+        f"Fetching {timeframe} candles for on {exchange.name} {symbol} starting {start_dt}."
+    )
 
     # Fetch OHLCV data
     timeframe_map = {"1m": 60e3}
@@ -270,4 +272,102 @@ async def candles(
     if verbose:
         print(
             f"Finished downloading candles for {symbol} on {exchange} on {start_dt.strftime('%Y-%m-%d')}."
+        )
+
+
+async def trades(
+    exchange: ccxt.Exchange,
+    symbol: str,
+    start_dt: datetime,
+    rate_limiter: AsyncLimiter,
+    download_dir: str = DEFAULT_DOWNLOAD_DIR,
+    verbose: Optional[bool] = True,
+) -> pd.DataFrame:
+    """Download trade data.
+
+    Parameters
+    ----------
+    exchange : str | ccxt_pro.Exchange
+        The exchange to download data from, provided either by
+        name as a string, or directly as a CCXT Pro exchange
+        instance.
+
+    symbol : str
+        The symbol to download data for.
+
+    start_dt : datetime
+        The start date of the data to download, provided as a
+        datetime object.
+
+    end_dt : datetime
+        The end date of the data to download, provided as a
+        datetime object.
+
+    rate_limiter : asiolimiter.AsyncLimiter
+        An asyncio rate limiter object.
+
+    download_dir : str, optional
+        The path to the download directory. The default is
+        './ccxt_data'.
+
+    verbose : bool, optional
+        Be verbose. The default is True.
+    """
+    filename = filename_builder(
+        exchange=exchange.name.lower(),
+        start_dt=start_dt,
+        download_dir=download_dir,
+        symbol=symbol,
+        data_type=CANDLES,
+    )
+
+    if os.path.exists(filename):
+        # Data already downloaded, skip
+        logger.info(
+            f"Trade data for {symbol} on {exchange.name} starting {start_dt} already exist."
+        )
+        return
+
+    logger.debug(
+        f"Fetching trade data for {symbol} on {exchange.name} starting {start_dt}."
+    )
+
+    # Fetch trades
+    start_ts = int(start_dt.timestamp() * 1000)
+    end_ts = int((start_dt + timedelta(days=1)).timestamp() * 1000)
+    trade_data = []
+    current_ts = start_ts
+    while current_ts < end_ts:
+        async with rate_limiter:
+            data = await exchange.fetch_trades(
+                symbol=symbol,
+                since=current_ts,
+                limit=1000,
+            )
+        if len(data) < 1:
+            break
+        trade_data += data
+        current_ts = data[-1]["timestamp"] + 1
+
+    # Convert the data into a DataFrame
+    df = pd.DataFrame(
+        trade_data,
+        columns=["timestamp", "symbol", "side", "price", "amount", "cost", "fee"],
+    )
+    df["Timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
+    df.set_index("Timestamp", inplace=True)
+
+    # Trim data
+    # TODO - bybit trade data doesn't seem to go back in time...
+
+    # Add meta info and clean up
+    df["exchange"] = exchange.name.lower()
+    df.drop("timestamp", inplace=True, axis=1)
+
+    # Save
+    df.to_csv(filename)
+
+    if verbose:
+        print(
+            f"Finished downloading trades for {symbol} on {exchange} on {start_dt.strftime('%Y-%m-%d')}."
         )
