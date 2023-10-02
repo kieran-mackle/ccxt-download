@@ -49,10 +49,10 @@ daily for 1 minutely data, weekly for 30 minutely, and so on.
 
 ### To Do
 - [ ] Progress verbosity
-- [ ] Docstrings
 - [ ] Support trade data downloads
 - [ ] Test commitizen version bumping and changelog setup
 - [ ] Support private API downloads
+- [x] Docstrings
 - [x] Add license to repo
 - [x] Expand contributing section
 

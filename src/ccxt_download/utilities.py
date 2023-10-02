@@ -8,12 +8,14 @@ from ccxt_download import DEFAULT_DOWNLOAD_DIR, STR_CONVERSIONS
 
 
 def format_str(s: str):
+    """Format a string so that it can be used as a filename."""
     for c, sub in STR_CONVERSIONS.items():
         s = s.replace(c, sub)
     return s
 
 
 def unformat_str(s: str):
+    """The inverse function of format_str."""
     reversed_map = {v: k for k, v in STR_CONVERSIONS.items()}
     for c, sub in reversed_map.items():
         s = s.replace(c, sub)
@@ -28,6 +30,7 @@ def filename_builder(
     data_type: str,
     data_type_id: Optional[str] = None,
 ):
+    """Construct a filename based on the arguments provided."""
     if isinstance(start_dt, datetime):
         start_str = start_dt.strftime("%Y-%m-%d")
     else:
@@ -44,6 +47,7 @@ def generate_date_range(
     start_dt: datetime,
     end_dt: datetime,
 ):
+    """Generate a range of dates, returned as a list of strings."""
     date_range = []
     current_dt = start_dt
     while current_dt < end_dt:
@@ -61,6 +65,7 @@ def load_data(
     download_dir: Optional[str] = DEFAULT_DOWNLOAD_DIR,
     **kwargs,
 ):
+    """Load data from the download directory."""
     if isinstance(start_date, str):
         start_date = datetime.strptime(start_date, "%Y-%m-%d")
 

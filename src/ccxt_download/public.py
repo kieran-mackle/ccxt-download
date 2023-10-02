@@ -23,6 +23,38 @@ def download(
     download_dir: str = DEFAULT_DOWNLOAD_DIR,
     rate_limiter: Optional[AsyncLimiter] = None,
 ):
+    """Download data.
+
+    Parameters
+    ----------
+    exchange : str | ccxt_pro.Exchange
+        The exchange to download data from, provided either by
+        name as a string, or directly as a CCXT Pro exchange
+        instance.
+
+    data_types : list[str]
+        The type of data to download. Currently only supports
+        "candles" data type.
+
+    symbols : list[str]
+        The symbols to download data for.
+
+    start_date : str | datetime
+        The start date of the data to download, provided as a
+        datetime object or as a string in the form 'YYYY-MM-DD'.
+
+    end_date : str | datetime
+        The end date of the data to download, provided as a
+        datetime object or as a string in the form 'YYYY-MM-DD'.
+
+    download_dir : str, optional
+        The path to the download directory. The default is
+        './ccxt_data'.
+
+    rate_limiter : asiolimiter.AsyncLimiter, optional
+        An asyncio rate limiter object. The default is
+        AsyncLimiter(max_rate=100, time_period=30).
+    """
     # Create rate limiter
     if rate_limiter is None:
         rate_limiter = AsyncLimiter(max_rate=100, time_period=30)
@@ -59,6 +91,37 @@ async def download_async(
     rate_limiter: AsyncLimiter,
     download_dir: str = DEFAULT_DOWNLOAD_DIR,
 ):
+    """Async data download function.
+
+    Parameters
+    ----------
+    exchange : str | ccxt_pro.Exchange
+        The exchange to download data from, provided either by
+        name as a string, or directly as a CCXT Pro exchange
+        instance.
+
+    data_types : list[str]
+        The type of data to download. Currently only supports
+        "candles" data type.
+
+    symbols : list[str]
+        The symbols to download data for.
+
+    start_date : str | datetime
+        The start date of the data to download, provided as a
+        datetime object or as a string in the form 'YYYY-MM-DD'.
+
+    end_date : str | datetime
+        The end date of the data to download, provided as a
+        datetime object or as a string in the form 'YYYY-MM-DD'.
+
+    rate_limiter : asiolimiter.AsyncLimiter
+        An asyncio rate limiter object.
+
+    download_dir : str, optional
+        The path to the download directory. The default is
+        './ccxt_data'.
+    """
     # Create exchange instance
     if isinstance(exchange, str):
         exchange = getattr(ccxt, exchange)()
@@ -105,6 +168,36 @@ async def candles(
     timeframe: Optional[str] = "1m",
     download_dir: str = DEFAULT_DOWNLOAD_DIR,
 ) -> pd.DataFrame:
+    """Download candle (OHLCV) data.
+
+    Parameters
+    ----------
+    exchange : str | ccxt_pro.Exchange
+        The exchange to download data from, provided either by
+        name as a string, or directly as a CCXT Pro exchange
+        instance.
+
+    symbol : str
+        The symbol to download data for.
+
+    start_dt : datetime
+        The start date of the data to download, provided as a
+        datetime object.
+
+    end_dt : datetime
+        The end date of the data to download, provided as a
+        datetime object.
+
+    timeframe : str, optional
+        The candlestick aggregation window. The default is 1m.
+
+    rate_limiter : asiolimiter.AsyncLimiter
+        An asyncio rate limiter object.
+
+    download_dir : str, optional
+        The path to the download directory. The default is
+        './ccxt_data'.
+    """
     filename = filename_builder(
         exchange=exchange.name.lower(),
         start_dt=start_dt,
