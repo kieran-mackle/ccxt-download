@@ -41,20 +41,13 @@ data already exists, it will not be re-downloaded.
 pip install ccxt-download
 ```
 
-## Notes
+## Notes and future work
 - Current implementation is most suited for minutely aggregated data. If
 longer aggregation windows were used, the 1-day file partitioning will
 need to be revised. An option is to partition dynamically, for example
 daily for 1 minutely data, weekly for 30 minutely, and so on.
-
-### To Do
-- [ ] Test commitizen version bumping and changelog setup
-- [ ] Support private API downloads
-- [x] Support trade data downloads
-- [x] Progress verbosity
-- [x] Docstrings
-- [x] Add license to repo
-- [x] Expand contributing section
+- Support for private downloads to assist in accounting, account tracking
+and analysis, etc.
 
 
 ## Contributing
