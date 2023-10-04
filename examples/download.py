@@ -12,10 +12,10 @@ logger.addHandler(fh)
 # Download candles
 public.download(
     exchange="bybit",
-    data_types=[TRADES],
+    data_types=[CANDLES, TRADES],
     symbols=[
         "ETH/USDT:USDT",
-        # "BTC/USDT:USDT",
+        "BTC/USDT:USDT",
     ],
     start_date="2023-09-01",
     end_date="2023-09-05",
