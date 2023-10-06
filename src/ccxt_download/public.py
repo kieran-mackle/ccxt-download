@@ -8,7 +8,7 @@ from typing import Optional, Union
 from aiolimiter import AsyncLimiter
 from datetime import datetime, timedelta
 from ccxt_download.utilities import filename_builder
-from ccxt_download import DEFAULT_DOWNLOAD_DIR, CANDLES
+from ccxt_download import DEFAULT_DOWNLOAD_DIR, CANDLES, TRADES
 
 
 logger = logging.getLogger(__name__)
@@ -318,7 +318,7 @@ async def trades(
         start_dt=start_dt,
         download_dir=download_dir,
         symbol=symbol,
-        data_type=CANDLES,
+        data_type=TRADES,
     )
 
     if os.path.exists(filename):
