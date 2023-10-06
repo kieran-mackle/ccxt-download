@@ -1,4 +1,17 @@
-# CCXT Download Utility
+
+<h1 align="center">CCXT Download Utility</h1>
+
+<p align="center">
+  <a href="https://pypi.org/project/ccxt-download">
+    <img src="https://img.shields.io/pypi/v/ccxt-download.svg?color=blue&style=plastic" alt="Latest version" width=95 height=20>
+  </a>
+  
+  <a href="https://github.com/psf/black">
+    <img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg">
+  </a>
+  
+</p>
+
 
 A lightweight package to conventiently and efficiently download 
 cryptocurrency data using [CCXT](https://github.com/ccxt/ccxt).
