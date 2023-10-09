@@ -145,13 +145,14 @@ def load_data(
     df = pd.DataFrame()
     for f in files:
         try:
-            df = pd.concat([df, pd.read_csv(f, index_col=0, parse_dates=True)])
+            _df = pd.read_csv(f, index_col=0, parse_dates=True)
+            _df = _df[~_df.index.duplicated(keep="first")]
+            df = pd.concat([df, _df])
         except:
             pass
 
     # Clean
     df.sort_index(inplace=True)
-    df.drop_duplicates(inplace=True)
 
     return df
 
