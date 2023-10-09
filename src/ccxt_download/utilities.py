@@ -156,6 +156,26 @@ def load_data(
     return df
 
 
+def flatten_ohlcv(df: pd.DataFrame, col: Optional[str] = "Close"):
+    """Flatten OHLCV data of many symbols by performing a pivot
+    operation.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The dataframe of OHLCV data, as returned by load_data.
+
+    col : str, optional
+        The column name to flatten by. The default is 'Close'.
+
+    Returns
+    -------
+    pd.DataFrame
+    """
+    flat_df = df.pivot(columns="symbol", values=col).ffill()
+    return flat_df
+
+
 def get_symbols(exchange: str, market_type: Optional[str] = "swap"):
     """Helper function to get symbols for a specific market type
     on an exchange.
