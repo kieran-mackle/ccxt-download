@@ -8,7 +8,7 @@ from typing import Optional, Union
 from aiolimiter import AsyncLimiter
 from datetime import datetime, timedelta
 from ccxt_download.utilities import filename_builder
-from ccxt_download import DEFAULT_DOWNLOAD_DIR, CANDLES
+from ccxt_download import DEFAULT_DOWNLOAD_DIR, CANDLES, TRADES
 
 
 logger = logging.getLogger(__name__)
@@ -256,6 +256,14 @@ async def candles(
     columns = ["Timestamp", "Open", "High", "Low", "Close", "Volume"]
     df = pd.DataFrame(ohlcv_data, columns=columns)
 
+    # Check actual date range of data
+    df = df.loc[(start_ts < df["Timestamp"]) & (df["Timestamp"] < end_ts)]
+    if len(df) == 0:
+        logger.info(
+            f"No candles for {symbol} on {exchange} found on {start_dt.strftime('%Y-%m-%d')}."
+        )
+        return
+
     # Convert the timestamp to a readable format
     df["Timestamp"] = pd.to_datetime(df["Timestamp"], unit="ms")
 
@@ -318,7 +326,7 @@ async def trades(
         start_dt=start_dt,
         download_dir=download_dir,
         symbol=symbol,
-        data_type=CANDLES,
+        data_type=TRADES,
     )
 
     if os.path.exists(filename):
@@ -354,11 +362,17 @@ async def trades(
         trade_data,
         columns=["timestamp", "symbol", "side", "price", "amount", "cost", "fee"],
     )
+
+    # Check actual date range of data
+    df = df.loc[(start_ts < df["Timestamp"]) & (df["Timestamp"] < end_ts)]
+    if len(df) == 0:
+        logger.info(
+            f"No trades for {symbol} on {exchange} found on {start_dt.strftime('%Y-%m-%d')}."
+        )
+        return
+
     df["Timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
     df.set_index("Timestamp", inplace=True)
-
-    # Trim data
-    # TODO - bybit trade data doesn't seem to go back in time...
 
     # Add meta info and clean up
     df["exchange"] = exchange.name.lower()
