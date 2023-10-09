@@ -485,8 +485,6 @@ async def funding(
     df.drop("timestamp", inplace=True, axis=1)
 
     # Save
-    print(filename)
-    print(df)
     df.to_csv(filename)
 
     if verbose:
