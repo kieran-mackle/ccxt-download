@@ -1,3 +1,14 @@
+## v0.2.0 (2023-10-09)
+
+### Feat
+
+- **utilities.py**: added flatten ohlcv utility
+
+### Fix
+
+- **public.py**: detect when data is out of range
+- **public**: trades filename prefix
+
 ## v0.1.0 (2023-10-04)
 
 ### Feat
