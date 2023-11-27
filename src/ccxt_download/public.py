@@ -23,6 +23,7 @@ def download(
     download_dir: str = DEFAULT_DOWNLOAD_DIR,
     rate_limiter: Optional[AsyncLimiter] = None,
     verbose: Optional[bool] = True,
+    options: Optional[dict[str, dict]] = None,
 ):
     """Download data.
 
@@ -58,7 +59,13 @@ def download(
 
     verbose : bool, optional
         Be verbose. The default is True.
+
+    options : dict[str, dict], optional
+        Extra options to pass to the download methods.
     """
+    # TODO - should probably check that the end date isn't today, or
+    # else a partial file will be written and never filled.
+
     # Create rate limiter
     if rate_limiter is None:
         rate_limiter = AsyncLimiter(max_rate=100, time_period=30)
@@ -82,6 +89,8 @@ def download(
             end_dt=end_date,
             rate_limiter=rate_limiter,
             download_dir=download_dir,
+            verbose=verbose,
+            options=options,
         )
     )
 
@@ -95,6 +104,7 @@ async def download_async(
     rate_limiter: AsyncLimiter,
     download_dir: str = DEFAULT_DOWNLOAD_DIR,
     verbose: Optional[bool] = True,
+    options: Optional[dict[str, dict]] = None,
 ):
     """Async data download function.
 
@@ -129,6 +139,9 @@ async def download_async(
 
     verbose : bool, optional
         Be verbose. The default is True.
+
+    options : dict[str, dict], optional
+        Extra options to pass to the download methods.
     """
     # Create exchange instance
     if isinstance(exchange, str):
@@ -143,10 +156,15 @@ async def download_async(
     if not os.path.exists(download_dir):
         os.mkdir(download_dir)
 
+    # Check options
+    if options is None:
+        options = {}
+
     tasks = []
     for datatype in data_types:
         for symbol in symbols:
             method = globals().get(datatype)
+            kwargs = options.get(datatype)
             current_dt = start_dt
             while current_dt < end_dt:
                 # Download data for this chunk
@@ -157,6 +175,7 @@ async def download_async(
                     rate_limiter=rate_limiter,
                     download_dir=download_dir,
                     verbose=verbose,
+                    **kwargs,
                 )
                 tasks.append(coro)
 
@@ -232,7 +251,7 @@ async def candles(
     )
 
     # Fetch OHLCV data
-    timeframe_map = {"1m": 60e3}
+    timeframe_map = {"1m": 60e3, "1s": 1e3}
     start_ts = int(start_dt.timestamp() * 1000)
     timeframe_ms = timeframe_map[timeframe]
     end_ts = int((start_dt + timedelta(days=1)).timestamp() * 1000)
