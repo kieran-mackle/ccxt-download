@@ -164,7 +164,7 @@ async def download_async(
     for datatype in data_types:
         for symbol in symbols:
             method = globals().get(datatype)
-            kwargs = options.get(datatype)
+            kwargs = options.get(datatype, {})
             current_dt = start_dt
             while current_dt < end_dt:
                 # Download data for this chunk
