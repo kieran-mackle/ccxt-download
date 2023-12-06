@@ -251,9 +251,20 @@ async def candles(
     )
 
     # Fetch OHLCV data
-    timeframe_map = {"1m": 60e3, "1s": 1e3}
+    timeframe_map = {
+        "4h": 4 * 60 * 60e3,
+        "1h": 60 * 60e3,
+        "15m": 15 * 60e3,
+        "1m": 60e3,
+        "1s": 1e3,
+    }
     start_ts = int(start_dt.timestamp() * 1000)
-    timeframe_ms = timeframe_map[timeframe]
+    try:
+        timeframe_ms = timeframe_map[timeframe]
+    except KeyError:
+        raise KeyError(
+            f"Timeframe key '{timeframe}' not supported. Must be one of the following: {', '.join(timeframe_map.keys())}"
+        )
     end_ts = int((start_dt + timedelta(days=1)).timestamp() * 1000)
     ohlcv_data = []
     current_ts = start_ts
