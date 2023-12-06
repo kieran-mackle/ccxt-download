@@ -190,3 +190,30 @@ def get_symbols(exchange: str, market_type: Optional[str] = "swap"):
     return [
         market["symbol"] for market in markets.values() if market["type"] == market_type
     ]
+
+
+def get_tickers(
+    exchange: str, threshold: Optional[float] = 0.0, market_type: Optional[str] = "swap"
+):
+    """Returns tickers, sorted by volume (in USDT)."""
+    exchange: ccxt.Exchange = getattr(ccxt, exchange)()
+    exchange.load_markets()
+
+    # Get symbols
+    symbols = [
+        market["symbol"]
+        for market in exchange.markets.values()
+        if market["type"] == market_type
+    ]
+
+    # Fetch tickers
+    tickers = exchange.fetch_tickers(symbols=symbols)
+
+    # Sort by volume
+    volumes = {v["quoteVolume"]: k for k, v in tickers.items()}
+
+    return {
+        volumes[v]: tickers[volumes[v]]
+        for v in sorted(volumes, reverse=True)
+        if v > threshold
+    }
