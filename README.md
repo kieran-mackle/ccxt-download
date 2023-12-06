@@ -13,18 +13,25 @@
 </p>
 
 
-A lightweight package to conventiently and efficiently download 
+A lightweight wrapper to conventiently and efficiently download 
 cryptocurrency data using [CCXT](https://github.com/ccxt/ccxt).
 
-Why is this necessary? Because many times I have found myself wanting
-to quickly download a bunch of price data for some quick analysis, only
-to spend some time writing a hacky script to download the data with no
-thought about storing it for later. Expecially when I need data for 
-multiple periods of time and for multiple symbols, things get messy, 
-fast. Not to mention the problems that pop up when I want to load that
-data later...
+## Description
 
-With this package, the above issues are no longer a worry. For me anyway.
+Why is this necessary? Many times I have found myself needing some data,
+only to spend some time writing a quick and dirty script to download said 
+data with no thought about storing it for later. Add multiple symbols across
+different time periods to the mix, and things just get worse. Then when I 
+want to load that data later, its so badly organised (or not at all) that it
+is easier to write another quick and dirty script and repeat the cycle. With 
+this package, the above issues are no longer issues. For me anyway.
+
+What makes this useful? The following features:
+- asynchronous downloading
+- intelligent download
+- data storage
+- intuitive API
+- helpful utilities
 
 
 ## Usage
@@ -48,6 +55,9 @@ public.download(
 Data will be downloaded to file between the dates specified. If the 
 data already exists, it will not be re-downloaded.
 
+For more usage, see the [examples](examples).
+
+
 ## Installation
 
 ```
@@ -61,6 +71,8 @@ need to be revised. An option is to partition dynamically, for example
 daily for 1 minutely data, weekly for 30 minutely, and so on.
 - Support for private downloads to assist in accounting, account tracking
 and analysis, etc.
+- Save files to parquet format instead of compressed CSV.
+- Centralise data store across machine.
 
 
 ## Contributing
