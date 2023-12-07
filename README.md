@@ -73,6 +73,13 @@ daily for 1 minutely data, weekly for 30 minutely, and so on.
 and analysis, etc.
 - Save files to parquet format instead of compressed CSV.
 - Centralise data store across machine.
+- Handling of incomplete day data. If data is downloaded for the present day, it will
+not contain 24 hours worth, depsite being timestamped for the day. This means that in
+repeat downloads on later days, this day will never be completed. Indicating an 
+incomplete day in the name could be used to manage this.
+- Cannot download 1s data too far back. If it is attempted, no data will be returned,
+and the download function will return without warning. A notice could be given if this 
+might have happened.
 
 
 ## Contributing

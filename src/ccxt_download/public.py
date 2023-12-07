@@ -255,6 +255,7 @@ async def candles(
         "4h": 4 * 60 * 60e3,
         "1h": 60 * 60e3,
         "15m": 15 * 60e3,
+        "5m": 5 * 60e3,
         "1m": 60e3,
         "1s": 1e3,
     }
@@ -290,7 +291,7 @@ async def candles(
     df = df.loc[(start_ts <= df["Timestamp"]) & (df["Timestamp"] < end_ts)]
     if len(df) == 0:
         logger.info(
-            f"No candles for {symbol} on {exchange} found on {start_dt.strftime('%Y-%m-%d')}."
+            f"No {timeframe} candles for {symbol} on {exchange} found on {start_dt.strftime('%Y-%m-%d')}."
         )
         return
 
