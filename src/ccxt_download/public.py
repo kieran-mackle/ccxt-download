@@ -51,7 +51,7 @@ def download(
 
     download_dir : str, optional
         The path to the download directory. The default is
-        './ccxt_data'.
+        '.ccxt_data/' in your user's home directory.
 
     rate_limiter : asiolimiter.AsyncLimiter, optional
         An asyncio rate limiter object. The default is
@@ -135,7 +135,7 @@ async def download_async(
 
     download_dir : str, optional
         The path to the download directory. The default is
-        './ccxt_data'.
+        '.ccxt_data/' in your user's home directory.
 
     verbose : bool, optional
         Be verbose. The default is True.
@@ -225,7 +225,7 @@ async def candles(
 
     download_dir : str, optional
         The path to the download directory. The default is
-        './ccxt_data'.
+        '.ccxt_data/' in your user's home directory.
 
     verbose : bool, optional
         Be verbose. The default is True.
@@ -347,7 +347,7 @@ async def trades(
 
     download_dir : str, optional
         The path to the download directory. The default is
-        './ccxt_data'.
+        '.ccxt_data/' in your user's home directory.
 
     verbose : bool, optional
         Be verbose. The default is True.
@@ -451,7 +451,7 @@ async def funding(
 
     download_dir : str, optional
         The path to the download directory. The default is
-        './ccxt_data'.
+        '.ccxt_data/' in your user's home directory.
 
     verbose : bool, optional
         Be verbose. The default is True.
