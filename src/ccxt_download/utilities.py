@@ -38,7 +38,9 @@ def filename_builder(
     dtid = f"{data_type_id}_" if data_type_id else ""
     filename = os.path.join(
         download_dir,
-        format_str(f"{exchange.lower()}_{dtid}{data_type}_{start_str}_{symbol}.csv.gz"),
+        format_str(
+            f"{exchange.lower()}_{dtid}{data_type}_{start_str}_{symbol}.parquet"
+        ),
     )
     return filename
 
@@ -145,7 +147,7 @@ def load_data(
     df = pd.DataFrame()
     for f in files:
         try:
-            _df = pd.read_csv(f, index_col=0, parse_dates=True)
+            _df = pd.read_parquet(f)
             _df = _df[~_df.index.duplicated(keep="first")]
             df = pd.concat([df, _df])
         except:

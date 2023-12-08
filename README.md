@@ -71,7 +71,6 @@ need to be revised. An option is to partition dynamically, for example
 daily for 1 minutely data, weekly for 30 minutely, and so on.
 - Support for private downloads to assist in accounting, account tracking
 and analysis, etc.
-- Save files to parquet format instead of compressed CSV.
 - Centralise data store across machine.
 - Handling of incomplete day data. If data is downloaded for the present day, it will
 not contain 24 hours worth, depsite being timestamped for the day. This means that in

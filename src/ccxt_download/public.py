@@ -306,7 +306,7 @@ async def candles(
     df["symbol"] = symbol
 
     # Save
-    df.to_csv(path_or_buf=filename, compression="gzip")
+    df.to_parquet(path=filename)
 
     if verbose:
         print(
@@ -410,7 +410,7 @@ async def trades(
     df.drop("timestamp", inplace=True, axis=1)
 
     # Save
-    df.to_csv(filename)
+    df.to_parquet(filename)
 
     if verbose:
         print(
@@ -516,7 +516,7 @@ async def funding(
     df.drop("timestamp", inplace=True, axis=1)
 
     # Save
-    df.to_csv(filename)
+    df.to_parquet(filename)
 
     if verbose:
         print(
