@@ -27,11 +27,10 @@ is easier to write another quick and dirty script and repeat the cycle. With
 this package, the above issues are no longer issues. For me anyway.
 
 What makes this useful? The following features:
-- asynchronous downloading
-- intelligent download
-- data storage
-- intuitive API
-- helpful utilities
+- asynchronous downloading (download data in parallel)
+- intelligent file management (won't re-download data if it already exists)
+- efficient data storage (using [Apache Parquet](https://parquet.apache.org/))
+- helpful utilities for loading and processing data
 
 
 ## Usage
