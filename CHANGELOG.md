@@ -1,3 +1,32 @@
+## v0.3.0 (2023-12-11)
+
+### Feat
+
+- implement incomplete data management
+- write data to parquet files instead of csv
+- **utilities**: added get_tickers utility
+- **candles**: added more timeframe keys
+- **download**: allow passing options for each datatype download
+- added download of funding rate history
+
+### Fix
+
+- **trades**: timestamp key error
+- **download_async**: fix kwargs input"
+- **public.py**: remove debug print
+- **utilities.py**: dropping of duplicate values
+
+## v0.2.0 (2023-10-09)
+
+### Feat
+
+- **utilities.py**: added flatten ohlcv utility
+
+### Fix
+
+- **public.py**: detect when data is out of range
+- **public**: trades filename prefix
+
 ## v0.1.0 (2023-10-04)
 
 ### Feat
