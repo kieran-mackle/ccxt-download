@@ -395,7 +395,7 @@ async def trades(
     )
 
     # Check actual date range of data
-    df = df.loc[(start_ts <= df["Timestamp"]) & (df["Timestamp"] < end_ts)]
+    df = df.loc[(start_ts <= df["timestamp"]) & (df["timestamp"] < end_ts)]
     if len(df) == 0:
         logger.info(
             f"No trades for {symbol} on {exchange} found on {start_dt.strftime('%Y-%m-%d')}."
