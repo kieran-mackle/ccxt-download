@@ -58,8 +58,12 @@ public.download(
 )
 ```
 
-Data will be downloaded to file between the dates specified. If the 
-data already exists, it will not be re-downloaded.
+Data will be downloaded between the dates specified. If the 
+data already exists, it will not be re-downloaded. The exception to this 
+is when a dataset has been marked as `incomplete`, for example when you 
+download data for the current day (which has not ended yet). When this is
+detected, that incomplete dataset will be updated. If it can be completed,
+the `incomplete` marking will be removed.
 
 ### Reading downloaded data
 
@@ -78,7 +82,6 @@ df = load_data(
 ```
 
 
-
 ## Installation
 
 ```
@@ -88,9 +91,6 @@ pip install ccxt-download
 ## Notes and future work
 - Support for private downloads to assist in accounting, account tracking
 and analysis, etc.
-- Cannot download `1s` data too far back. If it is attempted, no data will be returned,
-and the download function will return without warning. A notice could be given if this 
-might have happened.
 
 
 ## Contributing
