@@ -6,7 +6,7 @@ import logging
 import pandas as pd
 from typing import Optional, Union
 from datetime import datetime, timedelta
-from ccxt_download import DEFAULT_DOWNLOAD_DIR, STR_CONVERSIONS
+from ccxt_download.constants import DEFAULT_DOWNLOAD_DIR, STR_CONVERSIONS
 
 
 STRFMT = "%Y-%m-%d"

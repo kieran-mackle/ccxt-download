@@ -7,16 +7,17 @@ import ccxt.pro as ccxt
 from typing import Optional, Union
 from aiolimiter import AsyncLimiter
 from datetime import datetime, timedelta
+from ccxt_download import CANDLES, TRADES, FUNDING
 from ccxt_download.utilities import filename_builder
-from ccxt_download import DEFAULT_DOWNLOAD_DIR, CANDLES, TRADES, FUNDING
+from ccxt_download.constants import DATATYPES, CCXT_EXCHANGES, DEFAULT_DOWNLOAD_DIR
 
 
 logger = logging.getLogger(__name__)
 
 
 def download(
-    exchange: Union[str, ccxt.Exchange],
-    data_types: list[str],
+    exchange: Union[CCXT_EXCHANGES, ccxt.Exchange],
+    data_types: list[DATATYPES],
     symbols: list[str],
     start_date: Union[datetime, str],
     end_date: Union[datetime, str],
@@ -95,8 +96,8 @@ def download(
 
 
 async def download_async(
-    exchange: Union[str, ccxt.Exchange],
-    data_types: list[str],
+    exchange: Union[CCXT_EXCHANGES, ccxt.Exchange],
+    data_types: list[DATATYPES],
     symbols: list[str],
     start_dt: datetime,
     end_dt: datetime,
