@@ -16,7 +16,10 @@
 A lightweight wrapper to conventiently and efficiently download 
 cryptocurrency data using [CCXT](https://github.com/ccxt/ccxt).
 
-## Description
+## About `ccxt-download`
+
+What is it for? Downloading cryptocurrency data accessible via 
+[CCXT](https://github.com/ccxt/ccxt), but with less effort.
 
 Why is this necessary? Many times I have found myself needing some data,
 only to spend some time writing a quick and dirty script to download said 
