@@ -13,22 +13,35 @@
 </p>
 
 
-A lightweight package to conventiently and efficiently download 
+A lightweight wrapper to conventiently and efficiently download 
 cryptocurrency data using [CCXT](https://github.com/ccxt/ccxt).
 
-Why is this necessary? Because many times I have found myself wanting
-to quickly download a bunch of price data for some quick analysis, only
-to spend some time writing a hacky script to download the data with no
-thought about storing it for later. Expecially when I need data for 
-multiple periods of time and for multiple symbols, things get messy, 
-fast. Not to mention the problems that pop up when I want to load that
-data later...
+## Description
 
-With this package, the above issues are no longer a worry. For me anyway.
+Why is this necessary? Many times I have found myself needing some data,
+only to spend some time writing a quick and dirty script to download said 
+data with no thought about storing it for later. Add multiple symbols across
+different time periods to the mix, and things just get worse. Then when I 
+want to load that data later, its so badly organised (or not at all) that it
+is easier to write another quick and dirty script and repeat the cycle. With 
+this package, the above issues are no longer issues. For me anyway.
+
+What makes this useful? The following features:
+- asynchronous downloading (download data in parallel)
+- intelligent file management (won't re-download data if it already exists)
+  - if data is downloaded for the current day, it will be marked as `incomplete`, 
+  which will signal that it should be updated in future downloads
+- efficient data storage (using [Apache Parquet](https://parquet.apache.org/))
+- helpful utilities for loading and processing data
 
 
 ## Usage
 
+Below are some brief examples illustrating the basic functionality of `ccxt-download`. 
+For more, see the [examples](examples).
+
+
+### Downloading data
 ```python
 from ccxt_download import public, CANDLES
 
@@ -45,8 +58,29 @@ public.download(
 )
 ```
 
-Data will be downloaded to file between the dates specified. If the 
-data already exists, it will not be re-downloaded.
+Data will be downloaded between the dates specified. If the 
+data already exists, it will not be re-downloaded. The exception to this 
+is when a dataset has been marked as `incomplete`, for example when you 
+download data for the current day (which has not ended yet). When this is
+detected, that incomplete dataset will be updated. If it can be completed,
+the `incomplete` marking will be removed.
+
+### Reading downloaded data
+
+```python
+from ccxt_download import CANDLES
+from ccxt_download.utilities import load_data
+
+df = load_data(
+    exchange="bybit",
+    data_type=CANDLES,
+    data_type_id="1m",
+    symbols=["ETH/USDT:USDT"],
+    start_date="2023-09-01",
+    end_date="2023-09-04",
+)
+```
+
 
 ## Installation
 
@@ -55,10 +89,6 @@ pip install ccxt-download
 ```
 
 ## Notes and future work
-- Current implementation is most suited for minutely aggregated data. If
-longer aggregation windows were used, the 1-day file partitioning will
-need to be revised. An option is to partition dynamically, for example
-daily for 1 minutely data, weekly for 30 minutely, and so on.
 - Support for private downloads to assist in accounting, account tracking
 and analysis, etc.
 
