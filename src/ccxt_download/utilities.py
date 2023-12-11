@@ -1,10 +1,16 @@
 import os
+import pytz
 import ccxt
 import glob
+import logging
 import pandas as pd
 from typing import Optional, Union
 from datetime import datetime, timedelta
 from ccxt_download import DEFAULT_DOWNLOAD_DIR, STR_CONVERSIONS
+
+
+STRFMT = "%Y-%m-%d"
+logger = logging.getLogger(__name__)
 
 
 def format_str(s: str):
@@ -31,17 +37,28 @@ def filename_builder(
     data_type_id: Optional[str] = None,
 ):
     """Construct a filename based on the arguments provided."""
-    if isinstance(start_dt, datetime):
-        start_str = start_dt.strftime("%Y-%m-%d")
-    else:
-        start_str = start_dt
+    if isinstance(start_dt, str):
+        # Convert to datetime object
+        start_dt = datetime.strptime(start_dt, STRFMT)
+        start_dt = pytz.utc.localize(start_dt)
+
+    # Get start date as string
+    start_str = start_dt.strftime(STRFMT)
+
+    # Set data ID
     dtid = f"{data_type_id}_" if data_type_id else ""
+
+    # Check if the start_dt is today
+    inc = "_incomplete" if start_str == datetime.utcnow().strftime(STRFMT) else ""
+
+    # Construct filename and path
     filename = os.path.join(
         download_dir,
         format_str(
-            f"{exchange.lower()}_{dtid}{data_type}_{start_str}_{symbol}.parquet"
+            f"{exchange.lower()}_{dtid}{data_type}_{start_str}_{symbol}{inc}.parquet"
         ),
     )
+
     return filename
 
 
@@ -53,7 +70,7 @@ def generate_date_range(
     date_range = []
     current_dt = start_dt
     while current_dt < end_dt:
-        date_range.append(current_dt.strftime("%Y-%m-%d"))
+        date_range.append(current_dt.strftime(STRFMT))
         current_dt += timedelta(days=1)
     return date_range
 
@@ -65,14 +82,47 @@ def load_data(
     start_date: Optional[Union[datetime, str]] = None,
     end_date: Optional[Union[datetime, str]] = None,
     download_dir: Optional[str] = DEFAULT_DOWNLOAD_DIR,
+    include_incomplete: Optional[bool] = False,
     **kwargs,
 ):
-    """Load data from the download directory."""
+    """Load data from the download directory.
+
+    Parameters
+    -----------
+    exchange : str | ccxt_pro.Exchange
+        The exchange to download data from, provided either by
+        name as a string, or directly as a CCXT Pro exchange
+        instance.
+
+    data_type : str
+        The type of data to load.
+
+    symbols : list[str]
+        The symbols to load data for.
+
+    start_date : str | datetime
+        The start date of the data to load, provided as a
+        datetime object or as a string in the form 'YYYY-MM-DD'.
+
+    end_date : str | datetime
+        The end date of the data to load, provided as a
+        datetime object or as a string in the form 'YYYY-MM-DD'.
+
+    download_dir : str, optional
+        The path to the download directory. The default is
+        '.ccxt_data/' in your user's home directory.
+
+    include_incomplete : bool, optional
+        If `True`, incomplete data will be loaded as well. A message
+        will be logged to indicate which incomplete data sets were
+        loaded. Note that this refers to incomplete days of data other
+        than today, which will always be included. The default is False.
+    """
     if isinstance(start_date, str):
-        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        start_date = datetime.strptime(start_date, STRFMT)
 
     if isinstance(end_date, str):
-        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+        end_date = datetime.strptime(end_date, STRFMT)
 
     def filter(unfiltered_files: list[str], match_strs: list[str]):
         filtered_files = []
@@ -142,6 +192,27 @@ def load_data(
                 **kwargs,
             )
             files = glob.glob(filename)
+
+    # Check for incomplete data
+    if include_incomplete:
+        _no_incomplete = 0
+
+        # Check for incomplete versions of files
+        for i, f in enumerate(files):
+            if "incomplete" in f:
+                # This dataset is already incomplete
+                _no_incomplete += 1
+
+            else:
+                # Check for incomplete version
+                _incomplete_filename = "_incomplete.parquet".join(f.split(".parquet"))
+                if os.path.exists(_incomplete_filename):
+                    # There is incomplete data for this date; use it
+                    files[i] = _incomplete_filename
+                    _no_incomplete += 1
+                    logger.debug(
+                        f"Loading incomplete dataset from {_incomplete_filename}"
+                    )
 
     # Now load all data
     df = pd.DataFrame()

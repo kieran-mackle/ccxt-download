@@ -35,8 +35,7 @@ def download(
         instance.
 
     data_types : list[str]
-        The type of data to download. Currently only supports
-        "candles" data type.
+        The type of data to download.
 
     symbols : list[str]
         The symbols to download data for.
@@ -116,8 +115,7 @@ async def download_async(
         instance.
 
     data_types : list[str]
-        The type of data to download. Currently only supports
-        "candles" data type.
+        The type of data to download.
 
     symbols : list[str]
         The symbols to download data for.
@@ -188,6 +186,23 @@ async def download_async(
     await exchange.close()
 
 
+def _check_to_proceed(filename: str):
+    proceed = True
+    if os.path.exists(filename) and "incomplete" not in filename:
+        # Data already downloaded, skip
+        proceed = False
+
+    # Check for incomplete dataset on this day
+    _incomplete_filename = "_incomplete.parquet".join(filename.split(".parquet"))
+    if os.path.exists(_incomplete_filename):
+        # Remove incomplete file (to be replaced with complete data now)
+        # TODO - could do partial download using incomplete dataset for efficiency
+        os.remove(_incomplete_filename)
+        logger.debug(f"Removing previously incomplete data: {filename}.")
+
+    return proceed
+
+
 async def candles(
     exchange: ccxt.Exchange,
     symbol: str,
@@ -239,7 +254,9 @@ async def candles(
         data_type_id=timeframe,
     )
 
-    if os.path.exists(filename):
+    # Check to proceed
+    proceed = _check_to_proceed(filename)
+    if not proceed:
         # Data already downloaded, skip
         logger.info(
             f"{timeframe} candles for {symbol} on {exchange.name} starting {start_dt} already exist."
@@ -360,7 +377,9 @@ async def trades(
         data_type=TRADES,
     )
 
-    if os.path.exists(filename):
+    # Check to proceed
+    proceed = _check_to_proceed(filename)
+    if not proceed:
         # Data already downloaded, skip
         logger.info(
             f"Trade data for {symbol} on {exchange.name} starting {start_dt} already exist."
@@ -464,7 +483,9 @@ async def funding(
         data_type=FUNDING,
     )
 
-    if os.path.exists(filename):
+    # Check to proceed
+    proceed = _check_to_proceed(filename)
+    if not proceed:
         # Data already downloaded, skip
         logger.info(
             f"Funding rate data for {symbol} on {exchange.name} starting {start_dt} already exist."

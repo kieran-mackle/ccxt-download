@@ -29,12 +29,19 @@ this package, the above issues are no longer issues. For me anyway.
 What makes this useful? The following features:
 - asynchronous downloading (download data in parallel)
 - intelligent file management (won't re-download data if it already exists)
+  - if data is downloaded for the current day, it will be marked as `incomplete`, 
+  which will signal that it should be updated in future downloads
 - efficient data storage (using [Apache Parquet](https://parquet.apache.org/))
 - helpful utilities for loading and processing data
 
 
 ## Usage
 
+Below are some brief examples illustrating the basic functionality of `ccxt-download`. 
+For more, see the [examples](examples).
+
+
+### Downloading data
 ```python
 from ccxt_download import public, CANDLES
 
@@ -54,7 +61,22 @@ public.download(
 Data will be downloaded to file between the dates specified. If the 
 data already exists, it will not be re-downloaded.
 
-For more usage, see the [examples](examples).
+### Reading downloaded data
+
+```python
+from ccxt_download import CANDLES
+from ccxt_download.utilities import load_data
+
+df = load_data(
+    exchange="bybit",
+    data_type=CANDLES,
+    data_type_id="1m",
+    symbols=["ETH/USDT:USDT"],
+    start_date="2023-09-01",
+    end_date="2023-09-04",
+)
+```
+
 
 
 ## Installation
@@ -66,10 +88,6 @@ pip install ccxt-download
 ## Notes and future work
 - Support for private downloads to assist in accounting, account tracking
 and analysis, etc.
-- Handling of incomplete-day data. If data is downloaded for the present day, it will
-not contain 24 hours worth, depsite being timestamped for the day. This means that in
-repeat downloads on later days, this day will never be completed. Indicating an 
-incomplete day in the name could be used to manage this.
 - Cannot download `1s` data too far back. If it is attempted, no data will be returned,
 and the download function will return without warning. A notice could be given if this 
 might have happened.
