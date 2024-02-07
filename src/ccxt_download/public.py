@@ -328,8 +328,77 @@ async def candles(
 
     if verbose:
         print(
-            f"Finished downloading candles for {symbol} on {exchange} on {start_dt.strftime('%Y-%m-%d')}."
+            f"Finished downloading {timeframe} candles for {symbol} on {exchange} on {start_dt.strftime('%Y-%m-%d')}."
         )
+
+
+async def fetch_daily(
+    exchange: ccxt.Exchange,
+    symbol: str,
+    start_dt: datetime,
+    end_dt: datetime,
+    rate_limiter: AsyncLimiter,
+    verbose: Optional[bool] = True,
+):
+    """Helper function to download daily candle (OHLCV) data.
+
+    Parameters
+    ----------
+    exchange : str | ccxt_pro.Exchange
+        The exchange to download data from, provided either by
+        name as a string, or directly as a CCXT Pro exchange
+        instance.
+
+    symbol : str
+        The symbol to download data for.
+
+    start_dt : datetime
+        The start date of the data to download, provided as a
+        datetime object.
+
+    end_dt : datetime
+        The end date of the data to download, provided as a
+        datetime object.
+
+    rate_limiter : asiolimiter.AsyncLimiter
+        An asyncio rate limiter object.
+
+    verbose : bool, optional
+        Be verbose. The default is True.
+    """
+    timeframe = "1d"
+    start_ts = int(start_dt.timestamp()*1000)
+    end_ts = int(end_dt.timestamp()*1000)
+    ohlcv_data = []
+    current_ts = start_ts
+    while current_ts < end_ts:
+        async with rate_limiter:
+            data = await exchange.fetch_ohlcv(
+                symbol=symbol,
+                timeframe=timeframe,
+                since=current_ts,
+            )
+        if len(data) < 1:
+            break
+        ohlcv_data += data
+        current_ts = data[-1][0] + 1
+
+    # Convert the data into a DataFrame
+    columns = ["Timestamp", "Open", "High", "Low", "Close", "Volume"]
+    df = pd.DataFrame(ohlcv_data, columns=columns)
+    df.set_index("Timestamp", inplace=True)
+    df.index = pd.to_datetime(df.index, unit="ms")
+
+    # Add meta info
+    df["exchange"] = exchange.name.lower()
+    df["symbol"] = symbol
+
+    if verbose:
+        print(
+            f"Finished downloading {timeframe} candles for {symbol} on {exchange}."
+        )
+
+    return df
 
 
 async def trades(
