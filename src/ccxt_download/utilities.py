@@ -37,19 +37,25 @@ def filename_builder(
     data_type_id: Optional[str] = None,
 ):
     """Construct a filename based on the arguments provided."""
-    if isinstance(start_dt, str):
+    if isinstance(start_dt, str) and start_dt != "*":
         # Convert to datetime object
         start_dt = datetime.strptime(start_dt, STRFMT)
         start_dt = pytz.utc.localize(start_dt)
 
-    # Get start date as string
-    start_str = start_dt.strftime(STRFMT)
-
     # Set data ID
     dtid = f"{data_type_id}_" if data_type_id else ""
 
-    # Check if the start_dt is today
-    inc = "_incomplete" if start_str == datetime.utcnow().strftime(STRFMT) else ""
+    if start_dt != "*":
+        # Get start date as string
+        start_str = start_dt.strftime(STRFMT)
+
+        # Check if the start_dt is today
+        inc = "_incomplete" if start_str == datetime.utcnow().strftime(STRFMT) else ""
+
+    else:
+        # Wildcard date
+        start_str = start_dt
+        inc = ""
 
     # Construct filename and path
     filename = os.path.join(
@@ -153,7 +159,7 @@ def load_data(
                     files.append(filename)
 
         else:
-            # No symbol provided, filter only by date
+            # No symbol provided, filter only by date. First get all files
             filename = filename_builder(
                 exchange=exchange,
                 start_dt="*",
@@ -163,6 +169,8 @@ def load_data(
                 **kwargs,
             )
             all_files = glob.glob(filename)
+
+            # Now filter them by the date range
             files = filter(unfiltered_files=all_files, match_strs=date_range)
 
     else:
