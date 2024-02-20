@@ -380,8 +380,7 @@ def _period_start(td: timedelta, start_dt: datetime):
         # return pytz.utc.localize(start_dt)
     else:
         # Daily period; no adjustment needed
-        adj_start_dt = start_dt
-        # return start_dt
+        return start_dt
 
     # Inherit timezone
     if start_dt.tzinfo is not None and start_dt.tzinfo.utcoffset(start_dt) is not None:
