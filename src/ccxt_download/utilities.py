@@ -6,7 +6,7 @@ import logging
 import pandas as pd
 from typing import Optional, Union
 from datetime import datetime, timedelta
-from ccxt_download import DEFAULT_DOWNLOAD_DIR, STR_CONVERSIONS
+from ccxt_download.constants import DEFAULT_DOWNLOAD_DIR, STR_CONVERSIONS, CANDLES
 
 
 STRFMT = "%Y-%m-%d"
@@ -34,22 +34,30 @@ def filename_builder(
     download_dir: str,
     symbol: str,
     data_type: str,
+    window_length: Optional[timedelta] = timedelta(days=1),
     data_type_id: Optional[str] = None,
 ):
     """Construct a filename based on the arguments provided."""
-    if isinstance(start_dt, str):
+    if isinstance(start_dt, str) and start_dt != "*":
         # Convert to datetime object
         start_dt = datetime.strptime(start_dt, STRFMT)
         start_dt = pytz.utc.localize(start_dt)
 
-    # Get start date as string
-    start_str = start_dt.strftime(STRFMT)
-
     # Set data ID
     dtid = f"{data_type_id}_" if data_type_id else ""
 
-    # Check if the start_dt is today
-    inc = "_incomplete" if start_str == datetime.utcnow().strftime(STRFMT) else ""
+    if start_dt != "*":
+        # Get start date as string
+        start_str = start_dt.strftime(STRFMT)
+
+        # Check if today is in the time window
+        now = pytz.utc.localize(datetime.utcnow())
+        inc = "_incomplete" if start_dt < now < start_dt + window_length else ""
+
+    else:
+        # Wildcard date
+        start_str = start_dt
+        inc = ""
 
     # Construct filename and path
     filename = os.path.join(
@@ -65,13 +73,22 @@ def filename_builder(
 def generate_date_range(
     start_dt: datetime,
     end_dt: datetime,
+    data_type: str,
+    **kwargs,
 ):
     """Generate a range of dates, returned as a list of strings."""
+    td = timedelta_from_str(kwargs.get("data_type_id", "1m"))
+    if data_type in [CANDLES]:
+        # Adjust timestep
+        timestep = _timestep_from_timedelta(td)
+    else:
+        timestep = timedelta(days=1)
+
     date_range = []
-    current_dt = start_dt
+    current_dt = _period_start(td, start_dt)
     while current_dt < end_dt:
         date_range.append(current_dt.strftime(STRFMT))
-        current_dt += timedelta(days=1)
+        current_dt = _period_start(td, current_dt + timestep)
     return date_range
 
 
@@ -118,6 +135,7 @@ def load_data(
         loaded. Note that this refers to incomplete days of data other
         than today, which will always be included. The default is False.
     """
+    # TODO - test with hourly candle data
     if isinstance(start_date, str):
         start_date = datetime.strptime(start_date, STRFMT)
 
@@ -134,9 +152,16 @@ def load_data(
         return filtered_files
 
     # Determine filepath building method to use
+    td = timedelta_from_str(kwargs.get("data_type_id", "1m"))
+    if data_type in [CANDLES]:
+        window = _timestep_from_timedelta(td)
+    else:
+        window = timedelta(days=1)
     if start_date is not None and end_date is not None:
         # Date range requested
-        date_range = generate_date_range(start_dt=start_date, end_dt=end_date)
+        date_range = generate_date_range(
+            start_dt=start_date, end_dt=end_date, data_type=data_type, **kwargs
+        )
         if symbols is not None:
             # Specific symbols requested too
             files = []
@@ -145,6 +170,7 @@ def load_data(
                     filename = filename_builder(
                         exchange=exchange,
                         start_dt=date,
+                        window_length=window,
                         download_dir=download_dir,
                         symbol=symbol,
                         data_type=data_type,
@@ -153,16 +179,19 @@ def load_data(
                     files.append(filename)
 
         else:
-            # No symbol provided, filter only by date
+            # No symbol provided, filter only by date. First get all files
             filename = filename_builder(
                 exchange=exchange,
                 start_dt="*",
+                window_length=window,
                 download_dir=download_dir,
                 symbol="*",
                 data_type=data_type,
                 **kwargs,
             )
             all_files = glob.glob(filename)
+
+            # Now filter them by the date range
             files = filter(unfiltered_files=all_files, match_strs=date_range)
 
     else:
@@ -174,6 +203,7 @@ def load_data(
                 filename = filename_builder(
                     exchange=exchange,
                     start_dt="*",
+                    window_length=window,
                     download_dir=download_dir,
                     symbol=symbol,
                     data_type=data_type,
@@ -186,6 +216,7 @@ def load_data(
             filename = filename_builder(
                 exchange=exchange,
                 start_dt="*",
+                window_length=window,
                 download_dir=download_dir,
                 symbol="*",
                 data_type=data_type,
@@ -227,7 +258,11 @@ def load_data(
     # Clean
     df.sort_index(inplace=True)
 
-    return df
+    # Remove duplicates of timestamp-symbol pairs
+    multix = df.set_index(["symbol"], append=True)
+    df2 = multix[~multix.index.duplicated()].reset_index(level=1)
+
+    return df2
 
 
 def flatten_ohlcv(df: pd.DataFrame, col: Optional[str] = "Close"):
@@ -290,3 +325,85 @@ def get_tickers(
         for v in sorted(volumes, reverse=True)
         if v > threshold
     }
+
+
+def timedelta_from_str(timeframe: str) -> timedelta:
+    """Returns a timedelta object from a timeframe string.
+
+    Parameters
+    -----------
+    timeframe: str
+        The timeframe, specified in the format X[u], where X represents
+        the quantity of time, and u represents the units. For example, 1s
+        is for 1 second, 4h is for 4 hours. Only integer quantities are
+        supported. The unit must be in [s, m, h, d] (seconds, minutes,
+        hours, daily).
+
+    Examples
+    ---------
+    >>> timedelta_from_str("30s")
+    datetime.timedelta(seconds=30)
+    >>> timedelta_from_str("1h")
+    datetime.timedelta(seconds=3600)
+    """
+    timeframe = timeframe.lower()
+    if "s" in timeframe:
+        # Seconds
+        return timedelta(seconds=int(timeframe.split("s")[0]))
+    elif "m" in timeframe:
+        # Minutes
+        return timedelta(minutes=int(timeframe.split("m")[0]))
+    elif "h" in timeframe:
+        # Hours
+        return timedelta(hours=int(timeframe.split("h")[0]))
+    elif "d" in timeframe:
+        # Days
+        return timedelta(days=int(timeframe.split("d")[0]))
+    else:
+        raise ValueError(f"Cannot parse timeframe '{timeframe}'.")
+
+
+def _period_start(td: timedelta, start_dt: datetime):
+    """Ensure the date is at the start of its period.
+
+    Parameters
+    -----------
+    td : timedelta
+        The timeframe timedelta.
+
+    start_dt : datetime
+        The start datetime object.
+    """
+    if td >= timedelta(days=1):
+        # Yearly period
+        adj_start_dt = datetime(year=start_dt.year, month=1, day=1)
+        # return pytz.utc.localize(start_dt)
+    elif td >= timedelta(hours=1):
+        # Monthly period
+        adj_start_dt = datetime(year=start_dt.year, month=start_dt.month, day=1)
+        # return pytz.utc.localize(start_dt)
+    else:
+        # Daily period; no adjustment needed
+        return start_dt
+
+    # Inherit timezone
+    if start_dt.tzinfo is not None and start_dt.tzinfo.utcoffset(start_dt) is not None:
+        return pytz.utc.localize(adj_start_dt)
+    else:
+        return adj_start_dt
+
+
+def _timestep_from_timedelta(td: timedelta):
+    if td >= timedelta(days=1):
+        # Use yearly windows
+        timestep = timedelta(days=31)
+
+    elif td >= timedelta(hours=1):
+        # Use monthly windows
+        timestep = timedelta(days=31)
+
+    else:
+        # Use daily windows
+        timestep = timedelta(days=1)
+
+    return timestep
