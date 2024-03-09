@@ -1,3 +1,16 @@
+## v0.4.0 (2024-03-09)
+
+### Feat
+
+- dynamic download window based on data type and timeframe
+- **public.py**: added fetch_daily helper for daily candles
+
+### Fix
+
+- **utilities.py**: remove duplicate timestamp-symbol pairs on load
+- **_period_start**: no adjustment for daily period
+- **utilities.py**: fixed filename_builder handling of date str
+
 ## v0.3.0 (2023-12-11)
 
 ### Feat
