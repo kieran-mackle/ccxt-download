@@ -258,7 +258,11 @@ def load_data(
     # Clean
     df.sort_index(inplace=True)
 
-    return df
+    # Remove duplicates of timestamp-symbol pairs
+    multix = df.set_index(["symbol"], append=True)
+    df2 = multix[~multix.index.duplicated()].reset_index(level=1)
+
+    return df2
 
 
 def flatten_ohlcv(df: pd.DataFrame, col: Optional[str] = "Close"):
