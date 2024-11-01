@@ -85,6 +85,9 @@ def download(
     start_date = pytz.utc.localize(start_date)
     end_date = pytz.utc.localize(end_date)
 
+    # Prevent future end date
+    end_date = min(end_date, pytz.utc.localize(datetime.now()))
+
     asyncio.run(
         download_async(
             exchange=exchange,
