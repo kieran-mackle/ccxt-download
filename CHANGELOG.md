@@ -1,3 +1,10 @@
+## v0.4.1 (2024-11-01)
+
+### Fix
+
+- **utilities**: get_tickers filters tickers by pre-fetched symbols
+- **download**: prevent attempting to download into the future
+
 ## v0.4.0 (2024-03-09)
 
 ### Feat
