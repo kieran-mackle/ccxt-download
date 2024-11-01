@@ -315,7 +315,7 @@ def get_tickers(
     ]
 
     # Fetch tickers
-    tickers = exchange.fetch_tickers(symbols=symbols)
+    tickers = {k: v for k, v in exchange.fetch_tickers().items() if k in symbols}
 
     # Sort by volume
     volumes = {v["quoteVolume"]: k for k, v in tickers.items()}
