@@ -20,6 +20,8 @@ dependencies = [
   'ccxt >= 4.0.112',
   'pandas >= 2.1.1',
   'aiolimiter >= 1.1.0',
+  'pyarrow',
+  'fastparquet',
 ]
 
 [project.optional-dependencies]
